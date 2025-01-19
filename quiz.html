@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .quiz-container {
+        background-color: white;
+        padding: 40px;
+        border-radius: 8px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        width: 350px;
+      }
+      .btn {
+        margin: 10px 0;
+        padding: 10px 20px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      .btn:hover {
+        background-color: #45a049;
+      }
+
+      #quiz-content {
+        visibility: hidden;
+      }
+    </style>
+  </head>
+  <body onload="quizStart()">
+    <div class="quiz-container">
+      <button class="btn" id="startBTN" onclick="start()">Start</button>
+      <div id="quiz-content">
+        <!-- Question and options will be rendered here -->
+        <h3 id="qs"></h3>
+        <div>
+          <button class="btn" id="btn1"></button>
+          <button class="btn" id="btn2"></button>
+          <button class="btn" id="btn3"></button>
+          <button class="btn" id="btn4"></button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const category = Number(params.get("category"));
+      let questions = [];
+      let answers = [];
+      let correct = [];
+      let questionNum = 0;
+      let correctQuestions = 0;
+
+      function quizStart() {
+        let apiCategory = 0;
+
+        // Convert to the fixed category of the API
+        switch (category) {
+          case 1:
+            apiCategory = 25;
+            break;
+          case 2:
+            apiCategory = 9;
+            break;
+          case 3:
+            apiCategory = 23;
+            break;
+          case 4:
+            apiCategory = 19;
+            break;
+          case 5:
+            apiCategory = 17;
+        }
+
+        let token = "";
+        let url = "";
+
+        // Fetch a unique token
+        fetch("https://opentdb.com/api_token.php?command=request")
+          .then((response) => response.json())
+          .then((data) => {
+            token = data.token;
+          });
+
+        url =
+          "https://opentdb.com/api.php?amount=10&category=" +
+          String(apiCategory) +
+          "&encode=url3986&token=" +
+          String(token);
+
+        // Fetch the Trivia API
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            let qs = [];
+            let ans = [];
+
+            // Retrieve the questions and answers from the API
+            for (let i = 0; i < data.results.length; i++) {
+              qs.push(decodeURIComponent(data.results[i].question));
+              ans.push([decodeURIComponent(data.results[i].correct_answer)]);
+              correct.push(decodeURIComponent(data.results[i].correct_answer));
+              for (let j = 0; j < data.results[i].incorrect_answers.length; j++) {
+                ans[i].push(
+                  decodeURIComponent(data.results[i].incorrect_answers[j])
+                );
+              }
+
+              // Shuffle answers
+              for (let k = ans[i].length - 1; k > 0; k--) {
+                const l = Math.floor(Math.random() * (k + 1));
+                [ans[i][k], ans[i][l]] = [ans[i][l], ans[i][k]];
+              }
+            }
+
+            // Store questions and answers
+            for (let i = 0; i < qs.length; i++) {
+              questions.push(qs[i]);
+              answers.push(ans[i]);
+            }
+          });
+      }
+
+      // Require the user to click a start button to allow the program time to fetch the API
+      function start() {
+        button = document.getElementById("startBTN");
+        button.style.visibility = "hidden";
+        container = document.getElementById("quiz-content");
+        container.style.visibility = "visible";
+        renderQuestion();
+      }
+
+      document.getElementById("btn1").addEventListener("click", checkAnswer);
+      document.getElementById("btn2").addEventListener("click", checkAnswer);
+      document.getElementById("btn3").addEventListener("click", checkAnswer);
+      document.getElementById("btn4").addEventListener("click", checkAnswer);
+
+      // Display question
+      function renderQuestion() {
+        document.getElementById("qs").innerText = questions[questionNum];
+
+        // Display answers based on whether the question is multiple choice or true/false
+        if (answers[questionNum].length > 2) {
+          document.getElementById("btn1").style.visibility = "visible";
+          document.getElementById("btn4").style.visibility = "visible";
+
+          document.getElementById("btn1").innerText = answers[questionNum][0];
+          document.getElementById("btn2").innerText = answers[questionNum][1];
+          document.getElementById("btn3").innerText = answers[questionNum][2];
+          document.getElementById("btn4").innerText = answers[questionNum][3];
+        } else {
+          document.getElementById("btn1").style.visibility = "hidden";
+          document.getElementById("btn4").style.visibility = "hidden";
+
+          document.getElementById("btn2").innerText = answers[questionNum][0];
+          document.getElementById("btn3").innerText = answers[questionNum][1];
+        }
+      }
+
+      function checkAnswer(event) {
+        btn = event.target;
+
+        // Check if user chose the right answer
+        if (btn.innerText == correct[questionNum]) {
+          alert("Correct!");
+          correctQuestions++;
+        } else {
+          alert("Incorrect!");
+        }
+
+        questionNum++;
+
+        // After 10 questions, the user has finished the quiz
+        if (questionNum == questions.length) {
+          localStorage.setItem('questionNum', questionNum);
+          localStorage.setItem('cQ', correctQuestions);
+          window.location.href = "end.html";
+        } else {
+          renderQuestion();
+        }
+      }
+    </script>
+  </body>
+</html>
