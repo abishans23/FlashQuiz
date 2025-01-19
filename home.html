@@ -20,17 +20,24 @@
         border-radius: 8px;
         box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
         text-align: center;
-        width: 350px;
+        width:350px;
+      }
+      .button-container{
+        margin-bottom: 10px;
+        
+        
+
+
       }
       .btn {
-        margin: 10px 0;
-        padding: 10px 20px;
+        margin: 10px ;
+        padding: 10px;
         background-color: #4caf50;
         color: white;
         border: none;
         border-radius: 5px;
-        cursor: pointer;
         font-size: 16px;
+        width: 90%;
       }
       .btn:hover {
         background-color: #45a049;
@@ -39,13 +46,15 @@
   </head>
   <body>
     <div class="home-container">
-      <h2>Welcome to FlashQuiz</h2>
-      <p>Select a category to start:</p>
-      <button class="btn" onclick="navigateToQuiz(1)">Art</button>
-      <button class="btn" onclick="navigateToQuiz(2)">General Knowledge</button>
-      <button class="btn" onclick="navigateToQuiz(3)">History</button>
-      <button class="btn" onclick="navigateToQuiz(4)">Math</button>
-      <button class="btn" onclick="navigateToQuiz(5)">Science & Nature</button>
+        <h2>Welcome to FlashQuiz</h2>
+        <p>Select a category to start:</p>
+      <div class="button-container">
+        <button class="btn" onclick="navigateToQuiz(1)">Art</button>
+        <button class="btn" onclick="navigateToQuiz(2)">General Knowledge</button>
+        <button class="btn" onclick="navigateToQuiz(3)">History</button>
+        <button class="btn" onclick="navigateToQuiz(4)">Math</button>
+        <button class="btn" onclick="navigateToQuiz(5)">Science & Nature</button>
+      </div>
     </div>
 
     <script>
